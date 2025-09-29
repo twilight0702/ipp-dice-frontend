@@ -140,6 +140,10 @@ interface RollData {
   dice: string
   outcome: string
   score: number
+  cardnum: string
+  name: string
+  roomId: number
+  playerId: number
 }
 
 const router = useRouter()
