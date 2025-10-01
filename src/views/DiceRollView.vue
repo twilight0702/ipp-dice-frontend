@@ -54,6 +54,16 @@
             </button>
           </form>
 
+          <!-- 错误信息显示 -->
+          <div v-if="errorMessage" class="message error-message">
+            {{ errorMessage }}
+          </div>
+
+          <!-- 成功信息显示 -->
+          <div v-if="successMessage" class="message success-message">
+            {{ successMessage }}
+          </div>
+
           <!-- 投掷结果显示 -->
           <div v-if="rollResult" class="info-card">
             <h3 class="card-title">🎉 投掷结果</h3>
@@ -104,16 +114,6 @@
                 <span>结果: {{ formatOutcome(record.diceOutcome) }}</span>
               </div>
             </div>
-          </div>
-
-          <!-- 错误信息显示 -->
-          <div v-if="errorMessage" class="message error-message">
-            {{ errorMessage }}
-          </div>
-
-          <!-- 成功信息显示 -->
-          <div v-if="successMessage" class="message success-message">
-            {{ successMessage }}
           </div>
         </div>
       </div>
