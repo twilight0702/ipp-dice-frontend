@@ -19,10 +19,11 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5175, // 修改为你想要的端口号
+    port: 5173, // 修改为你想要的端口号
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:4523/m1/7158550-6882593-default', // 后端服务器地址，请根据实际情况修改
+        // target: 'http://127.0.0.1:4523/m1/7158550-6882593-default', // 后端服务器地址，请根据实际情况修改
+        target: 'http://127.0.0.1:8080',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }

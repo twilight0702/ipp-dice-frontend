@@ -81,14 +81,46 @@ const joinRoom = async () => {
   errorMessage.value = ''
 
   try {
-    // 这里可以添加验证房间是否存在的API调用
-    // 暂时直接跳转到投掷页面
+    // 调用后端接口检查房间是否存在
+    const response = await fetch(`/api/room/info/${roomId.value}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (response.status === 404) {
+      // 房间不存在
+      errorMessage.value = '房间不存在，请检查房间号是否正确'
+      isLoading.value = false
+      return
+    }
+
+    if (!response.ok) {
+      // 其他错误
+      errorMessage.value = '获取房间信息失败，请稍后重试'
+      isLoading.value = false
+      return
+    }
+
+    // 解析响应数据
+    const result = await response.json();
+    
+    // 检查房间是否开放
+    if (result.data && result.data.isOpen === 0) {
+      // 房间已关闭
+      errorMessage.value = '房间已关闭，无法进入'
+      isLoading.value = false
+      return
+    }
+
+    // 房间开放，跳转到投掷页面
     await router.push({
       name: 'dice-roll',
       params: { roomId: roomId.value }
     })
   } catch (error) {
-    errorMessage.value = '进入房间失败，请重试'
+    errorMessage.value = '网络错误，请检查连接后重试'
     console.error('Join room error:', error)
   } finally {
     isLoading.value = false

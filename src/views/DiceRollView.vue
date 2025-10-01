@@ -92,16 +92,16 @@
           </div>
 
           <!-- 历史记录显示 -->
-          <div v-if="rollHistory.length > 1" class="info-card">
+          <div v-if="rollHistory.length > 0" class="info-card">
             <h3 class="card-title">📊 投掷历史</h3>
-            <div v-for="(record, index) in rollHistory.slice().reverse()" :key="index" class="history-item">
+            <div v-for="(record, index) in rollHistory.slice()" :key="index" class="history-item">
               <div class="history-header">
                 <span class="history-round">第 {{ record.round }} 轮</span>
                 <span class="history-score">{{ record.score }} 分</span>
               </div>
               <div class="history-details">
                 <span>骰子: {{ record.dice }}</span>
-                <span>结果: {{ record.outcome }}</span>
+                <span>结果: {{ formatOutcome(record.diceOutcome) }}</span>
               </div>
             </div>
           </div>
@@ -118,9 +118,9 @@
         </div>
       </div>
     </div>
-    
+
     <!-- 骰子动画组件 -->
-    <NumberRollAnimation 
+    <NumberRollAnimation
       :is-visible="showDiceAnimation"
       :dice-numbers="animationDiceNumbers"
       :min-duration="animationMinDuration"
@@ -136,14 +136,26 @@ import NumberRollAnimation from '@/components/NumberRollAnimation.vue'
 
 // 接口返回数据类型
 interface RollData {
+  playerId: number
   round: number
   dice: string
   outcome: string
   score: number
   cardnum: string
   name: string
-  roomId: number
+  roomId: string
+}
+
+// 历史记录数据类型
+interface PlayerRecord {
   playerId: number
+  cardnum: string
+  name: string
+  round: number
+  dice: string
+  diceOutcome: string
+  score: number
+  rollTime: string
 }
 
 const router = useRouter()
@@ -158,7 +170,7 @@ const successMessage = ref('')
 const rollResult = ref<RollData | null>(null)
 
 // 历史记录数组
-const rollHistory = ref<RollData[]>([])
+const rollHistory = ref<PlayerRecord[]>([])
 
 // 动画相关状态
 const showDiceAnimation = ref(false)
@@ -166,10 +178,14 @@ const animationDiceNumbers = ref<number[]>([]) // 六个骰子的点数数组
 const animationMinDuration = ref(5000) // 最小动画时长5秒，可配置
 
 // 获取房间ID
-onMounted(() => {
-  const urlRoomId = route.params.roomId
+onMounted(async () => {
+  // 同时检查路由参数和查询参数
+  const urlRoomId = route.params.roomId || route.query.roomId
   if (urlRoomId) {
     roomId.value = String(urlRoomId)
+    // 页面加载时尝试获取历史记录
+    // 注意：由于此时还没有playerId，所以暂时无法获取历史记录
+    // 可以考虑在用户第一次投掷后保存playerId到localStorage，下次访问时使用
   } else {
     // 如果没有房间ID，返回加入房间页面
     router.push({ name: 'join-room' })
@@ -195,18 +211,14 @@ const rollDice = async () => {
   isRolling.value = true
   errorMessage.value = ''
   successMessage.value = ''
-  
+
   // 开始动画
   showDiceAnimation.value = true
   animationDiceNumbers.value = []
 
   try {
-    // 生成一个临时的玩家ID（实际项目中可能需要从后端获取）
-    const playerId = Math.floor(Math.random() * 10000)
-
     const requestData = {
-      roomId: parseInt(roomId.value),
-      playerId: playerId,
+      roomId: roomId.value, // 直接使用字符串类型的 roomId
       cardnum: studentId.value,
       name: studentName.value
     }
@@ -239,20 +251,22 @@ const rollDice = async () => {
         // 临时方案：生成六个随机点数
         animationDiceNumbers.value = Array.from({length: 6}, () => Math.floor(Math.random() * 6) + 1);
       }
-      
+
       // 创建完整的结果对象
       const completeResult = {
-        ...requestData,
-        ...result.data as RollData
+        roomId: roomId.value,
+        cardnum: studentId.value,
+        name: studentName.value,
+        ...result.data
       }
-      
-      // 将单次结果存入数组，保持顺序
-      rollHistory.value.push(completeResult)
-      
+
       // 当前结果展示
       rollResult.value = completeResult
-      
+
       successMessage.value = '投掷成功！'
+
+      // 使用真实的playerId获取最新的历史记录
+      await fetchHistoryRecords(result.data.playerId)
     } else {
       errorMessage.value = result.message || '投掷失败，请重试'
       // 如果失败，关闭动画
@@ -268,9 +282,60 @@ const rollDice = async () => {
   }
   // 注意：不在这里设置 isRolling.value = false，就是在动画完成后设置
 }
+
+// 获取历史记录
+const fetchHistoryRecords = async (playerId: number) => {
+  try {
+    const response = await fetch(`/api/player/history-records?roomId=${roomId.value}&playerId=${playerId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (!response.ok) {
+      console.error('获取历史记录失败:', response.status);
+      return;
+    }
+
+    const result = await response.json();
+
+    if (result.code === 200 && result.data && result.data.historyRecords) {
+      // 更新历史记录
+      rollHistory.value = result.data.historyRecords;
+    }
+  } catch (error) {
+    console.error('获取历史记录错误:', error);
+  }
+}
+
+// 格式化骰子结果
+const formatOutcome = (outcome: string) => {
+  const outcomeMap: Record<string, string> = {
+    'LIU_PAO_HONG': '六豹红',
+    'ZHUANG_YUAN_CJH': '状元插金花',
+    'WU_HUANG': '五王',
+    'WU_ZI': '五子',
+    'ZHUANG_YUAN': '状元',
+    'DUI_TANG': '对堂',
+    'SAN_HONG': '三红',
+    'SI_JIN': '四进',
+    'ER_JU': '二举',
+    'YI_XIU': '一秀',
+    'PU_TONG': '普通'
+  };
+
+  return outcomeMap[outcome] || outcome;
+}
+
 </script>
 
 <style scoped>
+/* 投掷结果样式 */
+.info-card {
+  margin-top: 24px;
+}
+
 /* 历史记录样式 */
 .history-item {
   padding: var(--spacing-md);
