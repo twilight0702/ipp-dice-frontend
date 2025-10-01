@@ -52,17 +52,17 @@
               <span class="btn-icon" v-else>🎲</span>
               {{ isRolling ? '投掷中...' : '投掷骰子' }}
             </button>
+            
+            <!-- 错误信息显示 -->
+            <div v-if="errorMessage" class="message error-message">
+              {{ errorMessage }}
+            </div>
+
+            <!-- 成功信息显示 -->
+            <div v-if="successMessage" class="message success-message">
+              {{ successMessage }}
+            </div>
           </form>
-
-          <!-- 错误信息显示 -->
-          <div v-if="errorMessage" class="message error-message">
-            {{ errorMessage }}
-          </div>
-
-          <!-- 成功信息显示 -->
-          <div v-if="successMessage" class="message success-message">
-            {{ successMessage }}
-          </div>
 
           <!-- 投掷结果显示 -->
           <div v-if="rollResult" class="info-card">
