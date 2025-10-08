@@ -59,13 +59,7 @@
                     </div>
                   </template>
                   <div class="grid">
-                    <div class="col-12 md:col-6">
-                      <div class="flex justify-content-between"><span class="text-600">学号</span><span class="font-medium">{{ rollResult.cardnum }}</span></div>
-                      <div class="flex justify-content-between"><span class="text-600">姓名</span><span class="font-medium">{{ rollResult.name }}</span></div>
-                      <div class="flex justify-content-between"><span class="text-600">房间号</span><span class="font-medium">{{ rollResult.roomId }}</span></div>
-                      <div class="flex justify-content-between"><span class="text-600">玩家ID</span><span class="font-medium">{{ rollResult.playerId }}</span></div>
-                    </div>
-                    <div class="col-12 md:col-6">
+                    <div class="col-12">
                       <div class="flex justify-content-between"><span class="text-600">轮次</span><span class="font-medium">第 {{ rollResult.round }} 轮</span></div>
                       <div class="flex justify-content-between"><span class="text-600">骰子点数</span><span class="font-medium">{{ rollResult.dice }}</span></div>
                       <div class="flex justify-content-between"><span class="text-600">结果</span><span class="font-medium">{{ rollResult.outcome }}</span></div>
@@ -93,7 +87,7 @@
                           <Tag :value="formatOutcome(record.diceOutcome)" severity="success" class="font-bold" />
                         </div>
                       </template>
-                      <div class="flex gap-3 text-600">
+                      <div class="flex flex-nowrap justify-content-between gap-2 md:gap-3 text-600">
                         <span>骰子: {{ record.dice }}</span>
                         <span>得分: {{ record.score }} 分</span>
                       </div>
