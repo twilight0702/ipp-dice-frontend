@@ -1,47 +1,43 @@
 <template>
-  <div class="page-container">
-    <div class="content">
-      <div class="page-header">
-        <h1 class="page-title">🎲 骰子游戏</h1>
-        <p class="page-description">输入房间号加入游戏</p>
-      </div>
-
-      <div class="form-container">
-        <div class="form-card">
-          <form @submit.prevent="joinRoom">
-            <div class="form-group">
-              <label class="form-label">
-                <span class="label-icon">🏠</span>
-                房间号
-              </label>
-              <input
-                v-model="roomId"
-                type="text"
-                class="form-input"
-                placeholder="请输入房间号"
-                required
-              />
-              <div class="form-hint">
-                房间号由数字组成
-              </div>
+  <div class="grid justify-content-center p-3 surface-ground min-h-screen">
+    <div class="col-12 md:col-6">
+      <Card>
+        <template #title>
+          <span class="text-3xl font-bold pi pi-box"> 骰子游戏</span>
+        </template>
+        <template #subtitle>
+          <div class="mb-4">输入房间号加入游戏</div>
+        </template>
+        <template #content>
+          <form @submit.prevent="joinRoom" class="flex flex-column gap-5">
+            <div class="flex flex-column gap-1">
+              <FloatLabel variant="on">
+                <InputText
+                  id="roomId"
+                  v-model="roomId"
+                  class="w-full"
+                  autocomplete="off"
+                  required
+                />
+                <label for="roomId">房间号</label>
+              </FloatLabel>
+              <small class="text-600">房间号由数字组成</small>
             </div>
 
-            <button
+            <Button
               type="submit"
-              class="btn btn-primary btn-full-width"
+              :label="isLoading ? '正在进入...' : '进入房间'"
+              :icon="isLoading ? 'pi pi-spinner pi-spin' : 'pi pi-sign-in'"
+              class="w-full"
               :disabled="!roomId || isLoading"
-            >
-              <span v-if="isLoading" class="loading-spinner"></span>
-              <span class="btn-icon" v-else>🚪</span>
-              {{ isLoading ? '正在进入...' : '进入房间' }}
-            </button>
-          </form>
+            />
 
-          <div v-if="errorMessage" class="message error-message">
-            {{ errorMessage }}
-          </div>
-        </div>
-      </div>
+            <Message v-if="errorMessage" severity="error" class="w-full">
+              {{ errorMessage }}
+            </Message>
+          </form>
+        </template>
+      </Card>
     </div>
   </div>
 </template>
@@ -49,6 +45,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import Card from 'primevue/card'
+import InputText from 'primevue/inputtext'
+import FloatLabel from 'primevue/floatlabel';
+import Button from 'primevue/button'
+import Message from 'primevue/message'
+import 'primeicons/primeicons.css'
 
 const router = useRouter()
 const route = useRoute()
@@ -129,5 +131,4 @@ const joinRoom = async () => {
 </script>
 
 <style scoped>
-/* 使用公共样式，无需额外样式 */
 </style>

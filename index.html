@@ -5,6 +5,31 @@
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vite App</title>
+    <style>
+      :root {
+        /* 用户指定的配色：primary 与 surface */
+        --primary-color: #334155; /* primary */
+        --primary-color-text: #ffffff;
+        /* Aura 的 surface 色板核心使用 surface-500 及相关层次 */
+        --surface-500: #64748b; /* surface */
+        /* 可选：依据surface-500同步相关灰阶（保持Aura内部一致性）*/
+        --surface-400: #94a3b8;
+        --surface-600: #475569;
+        --surface-700: #334155;
+        --surface-300: #cbd5e1;
+        --surface-200: #e2e8f0;
+        --surface-100: #f1f5f9;
+        --surface-50: #f8fafc;
+        --surface-0: #ffffff;
+        /* ground / section / card等表层颜色可继续沿用Aura默认，必要时映射 */
+        --surface-ground: var(--surface-50);
+        --surface-section: var(--surface-0);
+        --surface-card: var(--surface-0);
+        --surface-overlay: var(--surface-0);
+        --surface-border: var(--surface-200);
+        --surface-hover: var(--surface-100);
+      }
+    </style>
   </head>
   <body>
     <div id="app"></div>

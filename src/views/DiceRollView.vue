@@ -1,130 +1,119 @@
 <template>
-  <div class="page-container">
-    <div class="content">
-      <!-- 返回按钮 -->
-      <button @click="goBack" class="back-button">
-        <span class="back-icon">←</span>
-        返回
-      </button>
-
-      <div class="page-header">
-        <h1 class="page-title">🎲 投掷骰子</h1>
-        <p class="page-description">房间号: {{ roomId }}</p>
-      </div>
-
-      <div class="form-container">
-        <div class="form-card">
-          <form @submit.prevent="rollDice">
-            <div class="form-group">
-              <label class="form-label">
-                <span class="label-icon">🎓</span>
-                学号
-              </label>
-              <input
-                v-model="studentId"
-                type="text"
-                class="form-input"
-                placeholder="请输入学号"
-                required
-              />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">
-                <span class="label-icon">👤</span>
-                姓名
-              </label>
-              <input
-                v-model="studentName"
-                type="text"
-                class="form-input"
-                placeholder="请输入姓名"
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              class="btn btn-primary btn-full-width"
-              :disabled="!studentId || !studentName || isRolling"
-            >
-              <span v-if="isRolling" class="loading-spinner"></span>
-              <span class="btn-icon" v-else>🎲</span>
-              {{ isRolling ? '投掷中...' : '投掷骰子' }}
-            </button>
-            
-            <!-- 错误信息显示 -->
-            <div v-if="errorMessage" class="message error-message">
-              {{ errorMessage }}
-            </div>
-
-            <!-- 成功信息显示 -->
-            <div v-if="successMessage" class="message success-message">
-              {{ successMessage }}
-            </div>
-          </form>
-
-          <!-- 投掷结果显示 -->
-          <div v-if="rollResult" class="info-card">
-            <h3 class="card-title">🎉 投掷结果</h3>
-            <div class="info-item">
-              <span class="info-label">学号</span>
-              <span class="info-value">{{ rollResult.cardnum }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">姓名</span>
-              <span class="info-value">{{ rollResult.name }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">房间号</span>
-              <span class="info-value">{{ rollResult.roomId }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">玩家ID</span>
-              <span class="info-value">{{ rollResult.playerId }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">轮次</span>
-              <span class="info-value">第 {{ rollResult.round }} 轮</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">骰子点数</span>
-              <span class="info-value">{{ rollResult.dice }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">结果</span>
-              <span class="info-value">{{ rollResult.outcome }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">得分</span>
-              <span class="info-value">{{ rollResult.score }} 分</span>
-            </div>
-          </div>
-
-          <!-- 历史记录显示 -->
-          <div v-if="rollHistory.length > 0" class="info-card">
-            <h3 class="card-title">📊 投掷历史</h3>
-            <div v-for="(record, index) in rollHistory.slice()" :key="index" class="history-item">
-              <div class="history-header">
-                <span class="history-round">第 {{ record.round }} 轮</span>
-                <span class="history-score">{{ record.score }} 分</span>
-              </div>
-              <div class="history-details">
-                <span>骰子: {{ record.dice }}</span>
-                <span>结果: {{ formatOutcome(record.diceOutcome) }}</span>
-              </div>
-            </div>
-          </div>
+  <div class="px-2 md:px-5 surface-ground min-h-screen">
+    <div class="grid px-2 md:px-5 py-3 md:py-5 justify-content-center">
+      <div class="col-12 sm:col-10 md:col-8 lg:col-6 xl:col-5">
+        <div class="flex align-items-center mb-3">
+          <Button label="返回" icon="pi pi-arrow-left" text severity="secondary" @click="goBack" />
         </div>
+
+        <Card class="w-full">
+          <template #title>
+            <span class="text-3xl font-bold pi pi-box"> 投掷骰子</span>
+          </template>
+        <template #subtitle>
+          <div class="mb-4">房间号: {{ roomId }}</div>
+        </template>
+          <template #content>
+            <form @submit.prevent="rollDice" class="grid gap-3">
+              <div class="col-12">
+                <FloatLabel variant="on" class="w-full">
+                  <InputText
+                    id="studentId"
+                    v-model="studentId"
+                    class="w-full"
+                    autocomplete="off"
+                    required
+                  />
+                  <label for="studentId">学号</label>
+                </FloatLabel>
+              </div>
+              <div class="col-12">
+                <FloatLabel variant="on" class="w-full">
+                  <InputText
+                    id="studentName"
+                    v-model="studentName"
+                    class="w-full"
+                    autocomplete="off"
+                    required
+                  />
+                  <label for="studentName">姓名</label>
+                </FloatLabel>
+              </div>
+              <div class="col-12">
+                <Button type="submit" :label="isRolling ? '投掷中...' : '投掷骰子'" :icon="isRolling ? 'pi pi-spinner pi-spin' : 'pi pi-play'" class="w-full" :disabled="!studentId || !studentName || isRolling" />
+              </div>
+
+              <Message v-if="errorMessage" severity="error" class="col-12">{{ errorMessage }}</Message>
+              <Message v-if="successMessage" severity="success" class="col-12">{{ successMessage }}</Message>
+            </form>
+
+            <Divider />
+
+            <div v-if="rollResult" class="grid">
+              <div class="col-12">
+                <Fieldset class="w-full">
+                  <template #legend>
+                    <div class="flex align-items-center pl-2">
+                      <i class="pi pi-check-circle mr-2 text-primary"></i>
+                      <span class="font-bold p-2 text-xl">投掷结果</span>
+                    </div>
+                  </template>
+                  <div class="grid">
+                    <div class="col-12 md:col-6">
+                      <div class="flex justify-content-between"><span class="text-600">学号</span><span class="font-medium">{{ rollResult.cardnum }}</span></div>
+                      <div class="flex justify-content-between"><span class="text-600">姓名</span><span class="font-medium">{{ rollResult.name }}</span></div>
+                      <div class="flex justify-content-between"><span class="text-600">房间号</span><span class="font-medium">{{ rollResult.roomId }}</span></div>
+                      <div class="flex justify-content-between"><span class="text-600">玩家ID</span><span class="font-medium">{{ rollResult.playerId }}</span></div>
+                    </div>
+                    <div class="col-12 md:col-6">
+                      <div class="flex justify-content-between"><span class="text-600">轮次</span><span class="font-medium">第 {{ rollResult.round }} 轮</span></div>
+                      <div class="flex justify-content-between"><span class="text-600">骰子点数</span><span class="font-medium">{{ rollResult.dice }}</span></div>
+                      <div class="flex justify-content-between"><span class="text-600">结果</span><span class="font-medium">{{ rollResult.outcome }}</span></div>
+                      <div class="flex justify-content-between"><span class="text-600">得分</span><span class="font-bold text-primary">{{ rollResult.score }} 分</span></div>
+                    </div>
+                  </div>
+                </Fieldset>
+              </div>
+            </div>
+
+            <div v-if="rollHistory.length > 0" class="grid mt-3">
+              <div class="col-12">
+                <Fieldset class="w-full">
+                  <template #legend>
+                    <div class="flex align-items-center pl-2">
+                      <i class="pi pi-history mr-2 text-primary"></i>
+                      <span class="font-bold p-2 text-xl">投掷历史</span>
+                    </div>
+                  </template>
+                  <div class="flex flex-column gap-2">
+                    <Panel v-for="(record, index) in rollHistory.slice()" :key="index" class="mb-2" :toggleable="false">
+                      <template #header>
+                        <div class="flex justify-content-between align-items-center w-full">
+                          <span class="font-bold">第 {{ record.round }} 轮</span>
+                          <Tag :value="formatOutcome(record.diceOutcome)" severity="success" class="font-bold" />
+                        </div>
+                      </template>
+                      <div class="flex gap-3 text-600">
+                        <span>骰子: {{ record.dice }}</span>
+                        <span>得分: {{ record.score }} 分</span>
+                      </div>
+                    </Panel>
+                  </div>
+                </Fieldset>
+              </div>
+            </div>
+          </template>
+        </Card>
       </div>
     </div>
 
-    <!-- 骰子动画组件 -->
+    <!-- 骰子动画覆盖层 -->
     <NumberRollAnimation
-      :is-visible="showDiceAnimation"
-      :dice-numbers="animationDiceNumbers"
-      :min-duration="animationMinDuration"
-      @animation-complete="onAnimationComplete"
+      :isVisible="showDiceAnimation"
+      :diceNumbers="animationDiceNumbers"
+      :minDuration="animationMinDuration"
+      :resultHoldDuration="animationResultHoldDuration"
+      @animationComplete="onAnimationComplete"
     />
   </div>
 </template>
@@ -132,7 +121,16 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import NumberRollAnimation from '@/components/NumberRollAnimation.vue'
+import Card from 'primevue/card'
+import InputText from 'primevue/inputtext'
+import Button from 'primevue/button'
+import Message from 'primevue/message'
+import Divider from 'primevue/divider'
+import Tag from 'primevue/tag'
+import FloatLabel from 'primevue/floatlabel'
+import Fieldset from 'primevue/fieldset'
+import Panel from 'primevue/panel'
+import NumberRollAnimation from '../components/NumberRollAnimation.vue'
 
 // 接口返回数据类型
 interface RollData {
@@ -175,7 +173,8 @@ const rollHistory = ref<PlayerRecord[]>([])
 // 动画相关状态
 const showDiceAnimation = ref(false)
 const animationDiceNumbers = ref<number[]>([]) // 六个骰子的点数数组
-const animationMinDuration = ref(5000) // 最小动画时长5秒，可配置
+const animationMinDuration = ref(4000) // 最小动画时长4秒，可配置
+const animationResultHoldDuration = ref(3000) // 结果停留时长3秒，可配置
 
 // 获取房间ID
 onMounted(async () => {
@@ -198,6 +197,7 @@ const goBack = () => {
 
 // 动画完成处理
 const onAnimationComplete = () => {
+  // 动画完成后，组件内部已延迟触发事件，这里只负责状态复位
   showDiceAnimation.value = false
   isRolling.value = false
 }
@@ -237,9 +237,9 @@ const rollDice = async () => {
       // 解析后端返回的 dice 字符串
       try {
         const diceArray = JSON.parse(result.data.dice);
-        if (Array.isArray(diceArray) && diceArray.length > 0) {
-          // 确保使用后端返回的骰子数组，并转换为数字类型
-          const parsedDiceNumbers = diceArray.map(n => Number(n));
+        if (Array.isArray(diceArray) && diceArray.length === 6) {
+          // 确保使用后端返回的6个骰子数组，并转换为数字类型
+          const parsedDiceNumbers = diceArray.map((n: unknown) => Number(n));
           console.log('后端返回的骰子数组:', parsedDiceNumbers);
           animationDiceNumbers.value = parsedDiceNumbers;
         } else {
@@ -331,48 +331,4 @@ const formatOutcome = (outcome: string) => {
 </script>
 
 <style scoped>
-/* 投掷结果样式 */
-.info-card {
-  margin-top: 24px;
-}
-
-/* 历史记录样式 */
-.history-item {
-  padding: var(--spacing-md);
-  margin-bottom: var(--spacing-sm);
-  background: var(--bg-light);
-  border-radius: var(--radius-medium);
-  border-left: 4px solid var(--primary-color);
-}
-
-.history-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--spacing-xs);
-}
-
-.history-round {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.history-score {
-  font-weight: 600;
-  color: var(--primary-color);
-  font-size: var(--font-lg);
-}
-
-.history-details {
-  display: flex;
-  gap: var(--spacing-lg);
-  font-size: var(--font-xs);
-  color: var(--text-secondary);
-}
-
-.history-details span {
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: var(--bg-white);
-  border-radius: var(--radius-small);
-}
 </style>

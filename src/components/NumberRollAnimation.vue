@@ -38,11 +38,13 @@ interface Props {
   isVisible: boolean
   diceNumbers?: number[]
   minDuration?: number
+  resultHoldDuration?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   minDuration: 3000,
-  diceNumbers: () => []
+  diceNumbers: () => [],
+  resultHoldDuration: 4000
 })
 
 const emit = defineEmits<{
@@ -147,7 +149,7 @@ const stopAnimation = (finalDiceNumbers: number[]) => {
           // 延迟发出动画完成事件，让用户有时间查看结果
           setTimeout(() => {
             emit('animationComplete');
-          }, 4000); // 保持结果显示4秒
+          }, props.resultHoldDuration); // 保持结果显示指定时长
         }, 500); // 短暂延迟确保最终状态渲染完成
       }
     }, index * stopInterval); // 依次停止每个骰子
@@ -394,12 +396,8 @@ const getDotClass = (number: number, index: number) => {
 .rolling-text, .completed-text {
   font-size: 2rem;
   margin-bottom: 0.8rem;
-  color: #72af96;
+  color: var(--p-primary-color-500);
   font-weight: bold;
-  background: linear-gradient(45deg, #77caa1, #62aa8c);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .rolling-subtitle, .completed-subtitle {
