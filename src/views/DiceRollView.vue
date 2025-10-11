@@ -206,7 +206,8 @@ import Panel from 'primevue/panel'
 import Toolbar from 'primevue/toolbar'
 import Dialog from 'primevue/dialog'
 import NumberRollAnimation from '../components/NumberRollAnimation.vue'
-import qqQrcode from '@/assets/qq_qrcode.jpg'
+// 从 public 目录生成稳定的资源路径（兼容 base 前缀）
+const qqQrcode = import.meta.env.BASE_URL + 'qq_qrcode.jpg'
 
 // 接口返回数据类型
 interface RollData {
@@ -254,7 +255,7 @@ const openBobingDialog = async () => {
     // 直接使用打包时内联的原文字符串
     const text = bobingMdRaw
     bobingText.value = text.split('\n').slice(0, 77).join('\n')
-    const rawHtml = marked.parse(bobingText.value)
+    const rawHtml = await marked.parse(bobingText.value)
     bobingHtml.value = DOMPurify.sanitize(rawHtml)
   } catch (e) {
     bobingText.value = '无法加载规则文件。'
